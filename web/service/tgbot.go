@@ -25,9 +25,6 @@ import (
 	tu "github.com/mymmrac/telego/telegoutil"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
-	
-	"log"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 var (
@@ -53,69 +50,6 @@ type Tgbot struct {
 	serverService  ServerService
 	xrayService    XrayService
 	lastStatus     *Status
-}
-
-func main() {
-	// 创建 Telegram bot
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_API_TOKEN"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	bot.Debug = true
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
-	// 创建菜单按钮
-	menuButton := tgbotapi.NewKeyboardButton("Menu")
-
-	// 生成行
-	menuRow := []tgbotapi.KeyboardButton{menuButton}
-
-	// 创建键盘
-	menuKeyboard := tgbotapi.NewReplyKeyboard(menuRow)
-
-	// 设置更新配置
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-
-	updates, err := bot.GetUpdatesChan(u)
-
-	// 处理更新
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-		// 如果消息内容是 /start
-		if update.Message.Text == "/start" {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Welcome to the bot!")
-			msg.ReplyMarkup = menuKeyboard // 显示菜单键盘
-			bot.Send(msg)
-		}
-
-		// 如果点击了 "Menu" 按钮，显示功能按钮
-		if update.Message.Text == "Menu" {
-			menuOptions := [][]tgbotapi.KeyboardButton{
-				{
-					tgbotapi.NewKeyboardButton("Functions"),
-					tgbotapi.NewKeyboardButton("Status"),
-				},
-				{
-					tgbotapi.NewKeyboardButton("Restart"),
-					tgbotapi.NewKeyboardButton("Clear All"),
-				},
-				{
-					tgbotapi.NewKeyboardButton("Help"),
-				},
-			}
-
-			// 创建包含多个按钮的键盘
-			menuKeyboard := tgbotapi.NewReplyKeyboard(menuOptions...)
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Choose an option:")
-			msg.ReplyMarkup = menuKeyboard // 显示菜单选项
-			bot.Send(msg)
-		}
-	}
 }
 
 func (t *Tgbot) NewTgbot() *Tgbot {
