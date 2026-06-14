@@ -32,7 +32,14 @@ func (t *Tgbot) SendReport() {
 	}
 
 	info := t.sendServerUsage()
-	t.SendMsgToTgbotAdmins(info)
+	keyboard := tu.InlineKeyboard(
+    tu.InlineKeyboardRow(
+        tu.InlineKeyboardButton("📊 Panel Menu").
+            WithCallbackData(t.encodeQuery("menu_main")),
+    ),
+)
+
+	t.SendMsgToTgbotAdmins(info, keyboard)					  
 
 	t.sendExhaustedToAdmins()
 	t.notifyExhausted()
