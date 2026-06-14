@@ -69,8 +69,11 @@ func (t *Tgbot) SendAnswer(chatId int64, msg string, isAdmin bool) {
 			tu.InlineKeyboardButton(t.I18nBot("qrCode")).WithCallbackData(t.encodeQuery("client_qr_links")),
 		),
 	)
-
-	var ReplyMarkup telego.ReplyMarkup
+	tu.InlineKeyboardRow(
+    tu.InlineKeyboardButton("🏠 Menu Main").
+        WithCallbackData(t.encodeQuery("menu_main")),
+),
+    	var ReplyMarkup telego.ReplyMarkup
 	if isAdmin {
 		ReplyMarkup = numericKeyboard
 	} else {
