@@ -193,8 +193,8 @@ func (t *Tgbot) answerCommand(message *telego.Message, chatId int64, isAdmin boo
 		}
 		msg += "\n\n" + t.I18nBot("tgbot.commands.pleaseChoose")
 	case "status":
-		onlyMessage = true
-		msg += t.I18nBot("tgbot.commands.status")
+    onlyMessage = true
+    msg += t.buildRichStatus()
 	case "id":
 		onlyMessage = true
 		msg += t.I18nBot("tgbot.commands.getID", "ID=="+strconv.FormatInt(message.From.ID, 10))
