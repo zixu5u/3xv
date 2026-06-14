@@ -31,8 +31,8 @@ func (t *Tgbot) SendReport() {
 		t.SendMsgToTgbotAdmins(msg)
 	}
 
-	info := t.sendServerUsage()
-	t.SendMsgToTgbotAdmins(info)
+	info := t.buildRichStatus()
+    t.SendMsgToTgbotAdmins(info)
 
 	t.sendExhaustedToAdmins()
 	t.notifyExhausted()
