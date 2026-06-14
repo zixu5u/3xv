@@ -14,10 +14,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/config"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/global"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"github.com/zixu5u/3xv/v3/internal/config"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/web/global"
+	"github.com/zixu5u/3xv/v3/internal/web/service"
 )
 
 // PanelService provides business logic for panel management operations.
@@ -32,7 +32,7 @@ type PanelUpdateInfo struct {
 }
 
 const (
-	panelUpdaterURL      = "https://raw.githubusercontent.com/MHSanaei/3x-ui/main/update.sh"
+	panelUpdaterURL      = "https://raw.githubusercontent.com/zixu5u/3xv/main/update.sh"
 	maxPanelUpdaterBytes = 2 << 20
 )
 
@@ -171,7 +171,7 @@ func downloadPanelUpdater() (string, error) {
 
 func fetchLatestPanelVersion() (string, error) {
 	client := (&service.SettingService{}).NewProxiedHTTPClient(10 * time.Second)
-	resp, err := client.Get("https://api.github.com/repos/MHSanaei/3x-ui/releases/latest")
+	resp, err := client.Get("https://api.github.com/repos/zixu5u/3xv/releases/latest")
 	if err != nil {
 		return "", err
 	}

@@ -8,14 +8,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/entity"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/global"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service/panel"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/websocket"
+	"github.com/zixu5u/3xv/v3/internal/database"
+	"github.com/zixu5u/3xv/v3/internal/database/model"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/web/entity"
+	"github.com/zixu5u/3xv/v3/internal/web/global"
+	"github.com/zixu5u/3xv/v3/internal/web/service"
+	"github.com/zixu5u/3xv/v3/internal/web/service/panel"
+	"github.com/zixu5u/3xv/v3/internal/web/websocket"
 
 	"github.com/gin-gonic/gin"
 )

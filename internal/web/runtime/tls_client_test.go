@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/zixu5u/3xv/v3/internal/database/model"
 )
 
 // nodeForServer builds a node pointing at a loopback test server (loopback is

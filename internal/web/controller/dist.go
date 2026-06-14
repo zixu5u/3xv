@@ -11,9 +11,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/config"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/session"
+	"github.com/zixu5u/3xv/v3/internal/config"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/web/session"
 )
 
 var distFS embed.FS

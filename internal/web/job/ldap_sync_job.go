@@ -6,10 +6,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	ldaputil "github.com/mhsanaei/3x-ui/v3/internal/util/ldap"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"github.com/zixu5u/3xv/v3/internal/database/model"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	ldaputil "github.com/zixu5u/3xv/v3/internal/util/ldap"
+	"github.com/zixu5u/3xv/v3/internal/web/service"
 )
 
 var DefaultTruthyValues = []string{"true", "1", "yes", "on"}

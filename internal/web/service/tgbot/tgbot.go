@@ -18,11 +18,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/common"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/global"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/locale"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/util/common"
+	"github.com/zixu5u/3xv/v3/internal/web/global"
+	"github.com/zixu5u/3xv/v3/internal/web/locale"
+	"github.com/zixu5u/3xv/v3/internal/web/service"
 
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"

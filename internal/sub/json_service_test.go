@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/zixu5u/3xv/v3/internal/database/model"
 )
 
 func hasDirectOutOutbound(svc *SubJsonService) bool {

@@ -12,9 +12,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/runtime"
+	"github.com/zixu5u/3xv/v3/internal/database"
+	"github.com/zixu5u/3xv/v3/internal/database/model"
+	"github.com/zixu5u/3xv/v3/internal/web/runtime"
 )
 
 // fakeNodePanel serves just enough of the node API for ReconcileNode: the

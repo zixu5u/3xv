@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/web/session"
+	"github.com/zixu5u/3xv/v3/internal/web/session"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"

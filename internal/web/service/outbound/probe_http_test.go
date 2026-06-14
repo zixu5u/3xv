@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/zixu5u/3xv/v3/internal/xray"
 )
 
 // stubProcess implements batchProcess without an xray binary. When serveSocks

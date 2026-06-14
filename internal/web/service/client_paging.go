@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/zixu5u/3xv/v3/internal/xray"
 )
 
 // ClientSlim is the row-shape used by the clients page. It drops fields the

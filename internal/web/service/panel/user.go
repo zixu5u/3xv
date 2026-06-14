@@ -3,12 +3,12 @@ package panel
 import (
 	"errors"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/crypto"
-	ldaputil "github.com/mhsanaei/3x-ui/v3/internal/util/ldap"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"github.com/zixu5u/3xv/v3/internal/database"
+	"github.com/zixu5u/3xv/v3/internal/database/model"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/util/crypto"
+	ldaputil "github.com/zixu5u/3xv/v3/internal/util/ldap"
+	"github.com/zixu5u/3xv/v3/internal/web/service"
 	"github.com/xlzd/gotp"
 	"gorm.io/gorm"
 )

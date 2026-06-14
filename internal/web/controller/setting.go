@@ -5,13 +5,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/crypto"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/entity"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/middleware"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service/panel"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/session"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/util/crypto"
+	"github.com/zixu5u/3xv/v3/internal/web/entity"
+	"github.com/zixu5u/3xv/v3/internal/web/middleware"
+	"github.com/zixu5u/3xv/v3/internal/web/service"
+	"github.com/zixu5u/3xv/v3/internal/web/service/panel"
+	"github.com/zixu5u/3xv/v3/internal/web/session"
 
 	"github.com/gin-gonic/gin"
 )

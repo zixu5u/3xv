@@ -7,7 +7,7 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/logger"
 	"golang.org/x/sys/windows"
 )
 

@@ -21,12 +21,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/config"
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/common"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/sys"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/zixu5u/3xv/v3/internal/config"
+	"github.com/zixu5u/3xv/v3/internal/database"
+	"github.com/zixu5u/3xv/v3/internal/logger"
+	"github.com/zixu5u/3xv/v3/internal/util/common"
+	"github.com/zixu5u/3xv/v3/internal/util/sys"
+	"github.com/zixu5u/3xv/v3/internal/xray"
 
 	"github.com/google/uuid"
 	"github.com/shirou/gopsutil/v4/cpu"

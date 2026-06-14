@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/zixu5u/3xv/v3/internal/database/model"
 )
 
 // Issue #5232: a vision flow set on a VLESS+XHTTP+REALITY (vlessenc) client
