@@ -478,20 +478,32 @@ func (t *Tgbot) buildRichStatus() string {
     status := t.serverService.GetStatus(t.lastStatus)
     t.lastStatus = status
 
-    var text string
+    var sb strings.Builder
 
-    // 系统信息部分
-    text += fmt.Sprintf("💻主机名称:%s\n", hostname)
-    text += fmt.Sprintf("♻️系统类型:%s\n", status.OS)
-    text += fmt.Sprintf("🚀系统架构:%s\n", status.Arch)
-    text += fmt.Sprintf("🚥系统负载:%.2f,%.2f,%.2f\n", status.Loads[0], status.Loads[1], status.Loads[2])
-    text += fmt.Sprintf("⏰运行时间:%d days\n", status.Uptime/86400)
-    text += fmt.Sprintf("✨xray版本:%s\n", status.Xray.Version)
-    text += fmt.Sprintf("✅xray状态:%s\n", status.Xray.State)
-    text += fmt.Sprintf("📣IP地址:%s\n", t.getPublicIP())
-    text += fmt.Sprintf("🍪面板版本:%s\n\n", config.GetVersion())
+    // 系统信息
+    sb.WriteString(fmt.Sprintf("💻主机名称:%s\n", hostname))
+    sb.WriteString(fmt.Sprintf("♻️系统类型:%s\n", status.OS))
+    sb.WriteString(fmt.Sprintf("🚀系统架构:%s\n", status.Arch))
+    sb.WriteString(fmt.Sprintf("🚥系统负载:%.2f,%.2f,%.2f\n", status.Loads[0], status.Loads[1], status.Loads[2]))
+    sb.WriteString(fmt.Sprintf("⏰运行时间:%d days\n", status.Uptime/86400))
+    sb.WriteString(fmt.Sprintf("✨xray版本:%s\n", status.Xray.Version))
+    sb.WriteString(fmt.Sprintf("✅xray状态:%s\n", status.Xray.State))
+    sb.WriteString(fmt.Sprintf("📣IP地址:%s\n", t.getPublicIP()))
+    sb.WriteString(fmt.Sprintf("🍪面板版本:%s\n", config.GetVersion()))
 
-    // 节点信息部分
+    // 内存和在线人数
+    sb.WriteString(fmt.Sprintf("📋 RAM:%s/%s\n", common.FormatTraffic(int64(status.Mem.Current)), common.FormatTraffic(int64(status.Mem.Total))))
+    onlines := service.XrayProcess().GetOnlineClients()
+    sb.WriteString(fmt.Sprintf("🌐 在线客户：%d\n", len(onlines)))
+    sb.WriteString(fmt.Sprintf("🔹 TCP: %d\n", status.TcpCount))
+    sb.WriteString(fmt.Sprintf("🔸 UDP: %d\n", status.UdpCount))
+    totalTraffic := status.NetTraffic.Sent + status.NetTraffic.Recv
+    sb.WriteString(fmt.Sprintf("🚦 流量：%s (↑%s,↓%s)\n\n", 
+        common.FormatTraffic(int64(totalTraffic)),
+        common.FormatTraffic(int64(status.NetTraffic.Sent)),
+        common.FormatTraffic(int64(status.NetTraffic.Recv))))
+
+    // 每个节点的详细
     inbounds, _ := t.inboundService.GetAllInbounds()
     for _, in := range inbounds {
         if !in.Enable {
@@ -503,18 +515,19 @@ func (t *Tgbot) buildRichStatus() string {
             expire = time.Unix(in.ExpiryTime/1000, 0).Format("2006-01-02")
         }
 
-        text += fmt.Sprintf("🆔节点名称:%s\n", in.Remark)
-        text += fmt.Sprintf("🔗节点类型:%s\n", in.Protocol)
-        text += fmt.Sprintf("🎯节点端口:%d\n", in.Port)
-        text += fmt.Sprintf("⏫上行流量↑:%s\n", common.FormatTraffic(in.Up))
-        text += fmt.Sprintf("⏬下行流量↓:%s\n", common.FormatTraffic(in.Down))
-        text += fmt.Sprintf("📊整体流量:%s\n", common.FormatTraffic(total))
-        text += fmt.Sprintf("❄️流量限制:%s\n", common.FormatTraffic(in.Total))
-        text += fmt.Sprintf("⏰到期时间:%s\n\n", expire)
+        sb.WriteString(fmt.Sprintf("🆔节点名称:%s\n", in.Remark))
+        sb.WriteString(fmt.Sprintf("🔗节点类型:%s\n", in.Protocol))
+        sb.WriteString(fmt.Sprintf("🎯节点端口:%d\n", in.Port))
+        sb.WriteString(fmt.Sprintf("⏫上行流量↑:%s\n", common.FormatTraffic(in.Up)))
+        sb.WriteString(fmt.Sprintf("⏬下行流量↓:%s\n", common.FormatTraffic(in.Down)))
+        sb.WriteString(fmt.Sprintf("📊整体流量:%s\n", common.FormatTraffic(total)))
+        sb.WriteString(fmt.Sprintf("❄️流量限制:%s\n", common.FormatTraffic(in.Total)))
+        sb.WriteString(fmt.Sprintf("⏰到期时间:%s\n\n", expire))
     }
 
-    t.setCachedServerStats(text)
-    return text
+    result := sb.String()
+    t.setCachedServerStats(result)
+    return result
 }
 
 // 获取公网IP（自动版，推荐）
