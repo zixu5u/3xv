@@ -467,3 +467,75 @@ func (t *Tgbot) isSingleWord(text string) bool {
 	re := regexp.MustCompile(`\s+`)
 	return re.MatchString(text)
 }
+// 自定义的详细状态（带表情符号）
+func (t *Tgbot) buildRichStatus() string {
+    cached, found := t.getCachedServerStats()
+    if found {
+        return cached
+    }
+
+    // 获取系统信息
+    status := t.serverService.GetStatus(t.lastStatus)
+    t.lastStatus = status
+
+    var text string
+
+    // 系统信息部分
+    text += fmt.Sprintf("💻主机名称:%s\n", hostname)
+    text += fmt.Sprintf("♻️系统类型:%s\n", status.OS)
+    text += fmt.Sprintf("🚀系统架构:%s\n", status.Arch)
+    text += fmt.Sprintf("🚥系统负载:%.2f,%.2f,%.2f\n", status.Loads[0], status.Loads[1], status.Loads[2])
+    text += fmt.Sprintf("⏰运行时间:%d days\n", status.Uptime/86400)
+    text += fmt.Sprintf("✨xray版本:%s\n", status.Xray.Version)
+    text += fmt.Sprintf("✅xray状态:%s\n", status.Xray.State)
+    text += fmt.Sprintf("📣IP地址:%s\n", t.getPublicIP())
+    text += fmt.Sprintf("🍪面板版本:%s\n\n", config.GetVersion())
+
+    // 节点信息部分
+    inbounds, _ := t.inboundService.GetAllInbounds()
+    for _, in := range inbounds {
+        if !in.Enable {
+            continue
+        }
+        total := in.Up + in.Down
+        expire := "♾️"
+        if in.ExpiryTime > 0 {
+            expire = time.Unix(in.ExpiryTime/1000, 0).Format("2006-01-02")
+        }
+
+        text += fmt.Sprintf("🆔节点名称:%s\n", in.Remark)
+        text += fmt.Sprintf("🔗节点类型:%s\n", in.Protocol)
+        text += fmt.Sprintf("🎯节点端口:%d\n", in.Port)
+        text += fmt.Sprintf("⏫上行流量↑:%s\n", common.FormatTraffic(in.Up))
+        text += fmt.Sprintf("⏬下行流量↓:%s\n", common.FormatTraffic(in.Down))
+        text += fmt.Sprintf("📊整体流量:%s\n", common.FormatTraffic(total))
+        text += fmt.Sprintf("❄️流量限制:%s\n", common.FormatTraffic(in.Total))
+        text += fmt.Sprintf("⏰到期时间:%s\n\n", expire)
+    }
+
+    t.setCachedServerStats(text)
+    return text
+}
+
+// 获取公网IP（自动版，推荐）
+func (t *Tgbot) getPublicIP() string {
+    // 方法1：最常用、最稳定的方式（推荐）
+    conn, err := net.Dial("udp", "8.8.8.8:80")
+    if err == nil {
+        defer conn.Close()
+        localAddr := conn.LocalAddr().(*net.UDPAddr)
+        return localAddr.IP.String()
+    }
+
+    // 方法2：如果上面失败，就用网卡地址
+    addrs, _ := net.InterfaceAddrs()
+    for _, addr := range addrs {
+        if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+            if ipnet.IP.To4() != nil {
+                return ipnet.IP.String()
+            }
+        }
+    }
+
+    return "IP获取失败"  // 兜底
+}
