@@ -51,9 +51,6 @@ func (t *Tgbot) SendAnswer(chatId int64, msg string, isAdmin bool) {
 			tu.InlineKeyboardButton(t.I18nBot("subscription.individualLinks")).WithCallbackData(t.encodeQuery("admin_client_individual_links")),
 			tu.InlineKeyboardButton(t.I18nBot("qrCode")).WithCallbackData(t.encodeQuery("admin_client_qr_links")),
 		),
-		tu.InlineKeyboardRow(
-    tu.InlineKeyboardButton("🔄 重启 Xray").WithCallbackData(t.encodeQuery("restart_xray")),
-),
 		// TODOOOOOOOOOOOOOO: Add restart button here.
 	)
 	numericKeyboardClient := tu.InlineKeyboard(
@@ -69,11 +66,8 @@ func (t *Tgbot) SendAnswer(chatId int64, msg string, isAdmin bool) {
 			tu.InlineKeyboardButton(t.I18nBot("qrCode")).WithCallbackData(t.encodeQuery("client_qr_links")),
 		),
 	)
-	tu.InlineKeyboardRow(
-    tu.InlineKeyboardButton("🏠 Menu Main").
-        WithCallbackData(t.encodeQuery("menu_main")),
-),
-    	var ReplyMarkup telego.ReplyMarkup
+
+	var ReplyMarkup telego.ReplyMarkup
 	if isAdmin {
 		ReplyMarkup = numericKeyboard
 	} else {
