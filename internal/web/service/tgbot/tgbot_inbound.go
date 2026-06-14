@@ -26,7 +26,6 @@ func (t *Tgbot) getInboundUsages() string {
 	}
 	for _, inbound := range inbounds {
 		info.WriteString(t.I18nBot("tgbot.messages.inbound", "Remark=="+inbound.Remark))
-		info.WriteString(fmt.Sprintf("📡 Protocol: %s\r\n", inbound.Protocol))
 		info.WriteString(t.I18nBot("tgbot.messages.port", "Port=="+strconv.Itoa(inbound.Port)))
 		info.WriteString(t.I18nBot("tgbot.messages.traffic", "Total=="+common.FormatTraffic((inbound.Up+inbound.Down)), "Upload=="+common.FormatTraffic(inbound.Up), "Download=="+common.FormatTraffic(inbound.Down)))
 
