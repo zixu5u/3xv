@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/rand"
 	"embed"
+	"fmt"
 	"math/big"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -14,10 +16,8 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"fmt"
-	"strings"
-	"time"
 
+	"github.com/zixu5u/3xv/v3/internal/config"
 	"github.com/zixu5u/3xv/v3/internal/logger"
 	"github.com/zixu5u/3xv/v3/internal/util/common"
 	"github.com/zixu5u/3xv/v3/internal/web/global"
@@ -270,6 +270,12 @@ func (t *Tgbot) Start(i18nFS embed.FS) error {
 		go t.OnReceive()
 	}
 
+	// Start the scheduler for daily reports
+	scheduleTime, err := t.settingService.GetTgbotRuntime()
+	if err == nil && len(scheduleTime) > 0 {
+		t.StartScheduler(scheduleTime)
+	}
+
 	return nil
 }
 
@@ -392,6 +398,7 @@ func (t *Tgbot) SetHostname() {
 // This method now calls the global StopBot function and cleans up other resources.
 func (t *Tgbot) Stop() {
 	StopBot()
+	t.StopScheduler()
 	logger.Info("Stop Telegram receiver ...")
 	tgBotMutex.Lock()
 	adminIds = nil
@@ -470,88 +477,94 @@ func (t *Tgbot) isSingleWord(text string) bool {
 	re := regexp.MustCompile(`\s+`)
 	return re.MatchString(text)
 }
-// 自定义的详细状态（带表情符号）
+
+// buildRichStatus builds a detailed status message with emoji formatting
 func (t *Tgbot) buildRichStatus() string {
-    cached, found := t.getCachedServerStats()
-    if found {
-        return cached
-    }
+	cached, found := t.getCachedServerStats()
+	if found {
+		return cached
+	}
 
-    // 获取系统信息
-    status := t.serverService.GetStatus(t.lastStatus)
-    t.lastStatus = status
+	// Get system status
+	status := t.serverService.GetStatus(t.lastStatus)
+	t.lastStatus = status
 
-    var sb strings.Builder
+	var sb strings.Builder
 
-    // 系统信息
-    sb.WriteString(fmt.Sprintf("💻主机名称:%s\n", hostname))
-    sb.WriteString(fmt.Sprintf("♻️系统类型:%s\n", status.OS))
-    sb.WriteString(fmt.Sprintf("🚀系统架构:%s\n", status.Arch))
-    sb.WriteString(fmt.Sprintf("🚥系统负载:%.2f,%.2f,%.2f\n", status.Loads[0], status.Loads[1], status.Loads[2]))
-    sb.WriteString(fmt.Sprintf("⏰运行时间:%d days\n", status.Uptime/86400))
-    sb.WriteString(fmt.Sprintf("✨xray版本:%s\n", status.Xray.Version))
-    sb.WriteString(fmt.Sprintf("✅xray状态:%s\n", status.Xray.State))
-    sb.WriteString(fmt.Sprintf("📣IP地址:%s\n", t.getPublicIP()))
-    sb.WriteString(fmt.Sprintf("🍪面板版本:%s\n", config.GetVersion()))
+	// System information
+	sb.WriteString(fmt.Sprintf("💻主机名称:%s\r\n", hostname))
+	sb.WriteString(fmt.Sprintf("♻️系统类型:%s\r\n", status.Os))
+	sb.WriteString(fmt.Sprintf("🚀系统架构:%s\r\n", status.Arch))
+	sb.WriteString(fmt.Sprintf("🚥系统负载:%.2f,%.2f,%.2f\r\n", status.Loads[0], status.Loads[1], status.Loads[2]))
+	sb.WriteString(fmt.Sprintf("⏰运行时间:%d天\r\n", status.Uptime/86400))
+	sb.WriteString(fmt.Sprintf("✨xray版本:%s\r\n", status.Xray.Version))
+	
+	xrayStatus := "❌停止"
+	if status.Xray.State == 1 { // Running
+		xrayStatus = "✅运行中"
+	}
+	sb.WriteString(fmt.Sprintf("✅xray状态:%s\r\n", xrayStatus))
+	sb.WriteString(fmt.Sprintf("📣IP地址:%s\r\n", t.getPublicIP()))
+	sb.WriteString(fmt.Sprintf("🍪面板版本:%s\r\n", config.GetVersion()))
 
-    // 内存和在线人数
-    sb.WriteString(fmt.Sprintf("📋 RAM:%s/%s\n", common.FormatTraffic(int64(status.Mem.Current)), common.FormatTraffic(int64(status.Mem.Total))))
-    onlines := service.XrayProcess().GetOnlineClients()
-    sb.WriteString(fmt.Sprintf("🌐 在线客户：%d\n", len(onlines)))
-    sb.WriteString(fmt.Sprintf("🔹 TCP: %d\n", status.TcpCount))
-    sb.WriteString(fmt.Sprintf("🔸 UDP: %d\n", status.UdpCount))
-    totalTraffic := status.NetTraffic.Sent + status.NetTraffic.Recv
-    sb.WriteString(fmt.Sprintf("🚦 流量：%s (↑%s,↓%s)\n\n", 
-        common.FormatTraffic(int64(totalTraffic)),
-        common.FormatTraffic(int64(status.NetTraffic.Sent)),
-        common.FormatTraffic(int64(status.NetTraffic.Recv))))
+	// Memory and online clients
+	sb.WriteString(fmt.Sprintf("📋 RAM:%s/%s\r\n", common.FormatTraffic(int64(status.Mem.Current)), common.FormatTraffic(int64(status.Mem.Total))))
+	onlines := service.XrayProcess().GetOnlineClients()
+	sb.WriteString(fmt.Sprintf("🌐 在线客户:%d\r\n", len(onlines)))
+	sb.WriteString(fmt.Sprintf("🔹 TCP:%d\r\n", status.TcpCount))
+	sb.WriteString(fmt.Sprintf("🔸 UDP:%d\r\n", status.UdpCount))
+	totalTraffic := status.NetTraffic.Sent + status.NetTraffic.Recv
+	sb.WriteString(fmt.Sprintf("🚦 流量:%s (↑%s,↓%s)\r\n\r\n",
+		common.FormatTraffic(int64(totalTraffic)),
+		common.FormatTraffic(int64(status.NetTraffic.Sent)),
+		common.FormatTraffic(int64(status.NetTraffic.Recv))))
 
-    // 每个节点的详细
-    inbounds, _ := t.inboundService.GetAllInbounds()
-    for _, in := range inbounds {
-        if !in.Enable {
-            continue
-        }
-        total := in.Up + in.Down
-        expire := "♾️"
-        if in.ExpiryTime > 0 {
-            expire = time.Unix(in.ExpiryTime/1000, 0).Format("2006-01-02")
-        }
+	// Inbound nodes details
+	inbounds, _ := t.inboundService.GetAllInbounds()
+	for _, in := range inbounds {
+		if !in.Enable {
+			continue
+		}
+		total := in.Up + in.Down
+		expire := "♾️"
+		if in.ExpiryTime > 0 {
+			expire = time.Unix(in.ExpiryTime/1000, 0).Format("2006-01-02")
+		}
 
-        sb.WriteString(fmt.Sprintf("🆔节点名称:%s\n", in.Remark))
-        sb.WriteString(fmt.Sprintf("🔗节点类型:%s\n", in.Protocol))
-        sb.WriteString(fmt.Sprintf("🎯节点端口:%d\n", in.Port))
-        sb.WriteString(fmt.Sprintf("⏫上行流量↑:%s\n", common.FormatTraffic(in.Up)))
-        sb.WriteString(fmt.Sprintf("⏬下行流量↓:%s\n", common.FormatTraffic(in.Down)))
-        sb.WriteString(fmt.Sprintf("📊整体流量:%s\n", common.FormatTraffic(total)))
-        sb.WriteString(fmt.Sprintf("❄️流量限制:%s\n", common.FormatTraffic(in.Total)))
-        sb.WriteString(fmt.Sprintf("⏰到期时间:%s\n\n", expire))
-    }
+		sb.WriteString(fmt.Sprintf("🆔节点名称:%s\r\n", in.Remark))
+		sb.WriteString(fmt.Sprintf("🔗节点类型:%s\r\n", in.Protocol))
+		sb.WriteString(fmt.Sprintf("🎯节点端口:%d\r\n", in.Port))
+		sb.WriteString(fmt.Sprintf("⏫上行流量↑:%s\r\n", common.FormatTraffic(in.Up)))
+		sb.WriteString(fmt.Sprintf("⏬下行流量↓:%s\r\n", common.FormatTraffic(in.Down)))
+		sb.WriteString(fmt.Sprintf("📊整体流量:%s\r\n", common.FormatTraffic(total)))
+		sb.WriteString(fmt.Sprintf("❄️流量限制:%s\r\n", common.FormatTraffic(in.Total)))
+		sb.WriteString(fmt.Sprintf("⏰到期时间:%s\r\n\r\n", expire))
+	}
 
-    result := sb.String()
-    t.setCachedServerStats(result)
-    return result
+	result := sb.String()
+	t.setCachedServerStats(result)
+	return result
 }
 
-// 获取公网IP（自动版，推荐）
+// getPublicIP gets the server's public IP address
 func (t *Tgbot) getPublicIP() string {
-    // 方法1：最常用、最稳定的方式（推荐）
-    conn, err := net.Dial("udp", "8.8.8.8:80")
-    if err == nil {
-        defer conn.Close()
-        localAddr := conn.LocalAddr().(*net.UDPAddr)
-        return localAddr.IP.String()
-    }
+	// Method 1: Most stable way - use UDP dial to determine local IP
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err == nil {
+		defer conn.Close()
+		localAddr := conn.LocalAddr().(*net.UDPAddr)
+		return localAddr.IP.String()
+	}
 
-    // 方法2：如果上面失败，就用网卡地址
-    addrs, _ := net.InterfaceAddrs()
-    for _, addr := range addrs {
-        if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-            if ipnet.IP.To4() != nil {
-                return ipnet.IP.String()
-            }
-        }
-    }
+	// Method 2: Fallback to network interface addresses
+	addrs, _ := net.InterfaceAddrs()
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
 
-    return "IP获取失败"  // 兜底
+	return "IP获取失败"
 }
