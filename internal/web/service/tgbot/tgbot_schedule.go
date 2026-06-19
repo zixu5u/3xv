@@ -127,7 +127,7 @@ func (t *Tgbot) calculateNextRunTime(now time.Time, scheduleStr string) time.Tim
 	nextRun = time.Date(nextRun.Year(), nextRun.Month(), nextRun.Day(), scheduledHour, scheduledMin, 0, 0, nextRun.Location())
 
 	// If the scheduled time has already passed today, move to tomorrow
-	if nextRun.Before(now) {
+	if nextRun.Before(now) || nextRun.Equal(now) {
 		nextRun = nextRun.Add(24 * time.Hour)
 	}
 
@@ -140,58 +140,12 @@ func (t *Tgbot) parseScheduleTime(scheduleStr string) (int, int) {
 	hour, min := 8, 0
 
 	if len(scheduleStr) >= 5 {
-		_, err := parseTime(scheduleStr)
+		parsedTime, err := time.Parse("15:04", scheduleStr)
 		if err == nil {
-			// Extract hour and minute from schedule string
-			parts := parseTimeComponents(scheduleStr)
-			if len(parts) >= 2 {
-				// Safe to convert, as parseTime already validated
-				var h, m int
-				_, _ = parseIntComponent(parts[0], &h)
-				_, _ = parseIntComponent(parts[1], &m)
-				hour, min = h, m
-			}
+			hour = parsedTime.Hour()
+			min = parsedTime.Minute()
 		}
 	}
 
 	return hour, min
-}
-
-// parseTime validates a time string in HH:MM format
-func parseTime(timeStr string) (time.Time, error) {
-	return time.Parse("15:04", timeStr)
-}
-
-// parseTimeComponents splits a time string into components
-func parseTimeComponents(timeStr string) []string {
-	var components []string
-	var current string
-	for _, ch := range timeStr {
-		if ch == ':' || ch == '-' {
-			if current != "" {
-				components = append(components, current)
-				current = ""
-			}
-		} else {
-			current += string(ch)
-		}
-	}
-	if current != "" {
-		components = append(components, current)
-	}
-	return components
-}
-
-// parseIntComponent safely parses an integer component
-func parseIntComponent(str string, value *int) (bool, error) {
-	var result int
-	for _, ch := range str {
-		if ch >= '0' && ch <= '9' {
-			result = result*10 + int(ch-'0')
-		} else {
-			return false, nil
-		}
-	}
-	*value = result
-	return true, nil
 }

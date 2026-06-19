@@ -3,7 +3,6 @@ package tgbot
 import (
 	"fmt"
 	"net"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -11,7 +10,8 @@ import (
 	"github.com/zixu5u/3xv/v3/internal/config"
 	"github.com/zixu5u/3xv/v3/internal/logger"
 	"github.com/zixu5u/3xv/v3/internal/util/common"
-	"github.com/zixu5u/3xv/v3/internal/web/service"
+
+	"github.com/mymmrac/telego"
 )
 
 // getServerAndInboundsStatus 获取服务器和所有启用节点的状态信息
@@ -76,7 +76,7 @@ func (t *Tgbot) getServerAndInboundsStatus() string {
 	enabledCount := 0
 	for _, inbound := range inbounds {
 		if inbound.Enable {
-			enabledCount++
+			enabledCount++  
 		}
 	}
 
